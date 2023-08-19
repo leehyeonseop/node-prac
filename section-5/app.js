@@ -1,29 +1,57 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+const indexRouter = require('./routes');
+const userRouter = require('./routes/user');
+
 const app = express();
 
 app.set('port', process.env.PORT || 3000);
 
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug')
+
 app.use(morgan('dev'));
-app.use('/', express.static(__dirname, 'public-3030'))
-app.use(cookieParser('hyeonseopPassword'));
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(session({
+    resave : false,
+    saveUninitialized : false,
+    secret : process.env.COOKIE_SECRET,
+    cookie : {
+        httpOnly : true
+    },
+}));
+app.use('/', (req, res, next) => {
+    if (req.session.id) {
+        express.static(__dirname, 'public')(req, res, next)
+    } else {
+        next();
+    }
+})
 app.use(express.json());
 app.use(express.urlencoded({ extended : true }));
-app.use(session());
+
+app.use('/', indexRouter)
+app.use('/user', userRouter)
 
 
+// app.use((req, res, next) => {
+//     console.log('1 모든 요청에 실행하고 싶어요.')
+//     next();
+// })
 
 app.use((req, res, next) => {
-    console.log('1 모든 요청에 실행하고 싶어요.')
-    next();
+    req.data = '현섭 비번'
 })
 
 app.get('/', (req, res, next) => {
-    req.body.name
+    req.data // 현섭 비번
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
