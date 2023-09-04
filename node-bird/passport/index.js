@@ -10,7 +10,21 @@ module.exports = () => {
     // 세션 { 123124445 : 1 } { 세션쿠키 : 유저아이디 } => 메모리에 저장됨.
 
     passport.deserializeUser((id, done) => { // id : 1
-        User.findOne({ where : { id } })
+        User.findOne({ 
+            where : { id },
+            include : [
+                {
+                    model : User,
+                    attributes : ['id', 'nick'],
+                    as : 'Followers'
+                }, // 팔로잉
+                {
+                    model : User,
+                    attributes : ['id', 'nick'],
+                    as : 'Followings'
+                } 
+            ] 
+        })
             .then((user) => done(null, user)) // req.user
             .catch(err => done(err));
     });
