@@ -6,3 +6,7 @@ section-7/learn-mongoose/node_modules
 section-7/learn-mongoose/schemas/index.js
 node-bird/node_modules
 node-bird/config
+api-call/node_modules
+api/node_modules
+api-call/config
+api/config
